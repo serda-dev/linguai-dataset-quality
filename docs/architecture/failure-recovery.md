@@ -1,0 +1,3 @@
+# Failure recovery — provisional
+
+Claim work with PostgreSQL row locking and expiring leases. Commit validated result, attempt provenance and accepted-label uniqueness within one transaction. Crash after remote teacher reply but before commit can cause a second paid inference; explain this limit and deduplicate accepted results via a unique contract key. Distinguish timeout/unavailable/invalid JSON/schema rejection and cap retries with backoff. Replacing the Vast endpoint changes profile for future attempts but never rewrites previous provenance. Persist sample decisions before jobs; do not silently resume an unpinned or reordered HF stream. DB unavailability should fail readiness and pause work. Disk limit pauses ingest/export without deleting existing data.
