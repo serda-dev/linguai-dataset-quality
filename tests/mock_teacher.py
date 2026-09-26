@@ -1,5 +1,6 @@
 """Deterministic OpenAI-compatible fake; no external requests."""
 from fastapi import FastAPI
+from fastapi import HTTPException
 
 app = FastAPI()
 
@@ -10,6 +11,8 @@ def completion(body: dict):
 
     user = body["messages"][1]["content"]
     doc_id = user.split("DOCUMENT_ID:\n", 1)[1].split("\n", 1)[0]
+    if "MOCK_UNAVAILABLE" in user:
+        raise HTTPException(status_code=503, detail="test outage")
     if "MOCK_INVALID_JSON" in user:
         content = "{invalid"
     else:

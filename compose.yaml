@@ -15,20 +15,26 @@ services:
     build: .
     command: python -m linguai_quality.init_db
     environment: &runtime
-      DATABASE_URL: postgresql://quality:${POSTGRES_PASSWORD}@postgres:5432/quality
+      DATABASE_URL: ${DATABASE_URL:?set an appropriately URL-encoded database DSN}
       ADMIN_TOKEN: ${ADMIN_TOKEN:?set an admin token}
       TEACHER_BASE_URL: ${TEACHER_BASE_URL:?set teacher endpoint}
       TEACHER_API_KEY: ${TEACHER_API_KEY:-}
       TEACHER_MODEL: ${TEACHER_MODEL:?set teacher model}
       TEACHER_PROFILE: ${TEACHER_PROFILE:?set teacher profile}
       ARTIFACT_DIR: /artifacts
+      MAX_DATABASE_BYTES: ${MAX_DATABASE_BYTES:-8000000000}
+      MAX_EXPORT_BYTES: ${MAX_EXPORT_BYTES:-1000000000}
+      MIN_ARTIFACT_FREE_BYTES: ${MIN_ARTIFACT_FREE_BYTES:-2000000000}
+      UNAPPROVED_JOB_CEILING: ${UNAPPROVED_JOB_CEILING:-5000}
     depends_on:
       postgres:
         condition: service_healthy
     restart: "no"
   api:
     build: .
-    environment: *runtime
+    environment:
+      <<: *runtime
+      FULL_RUN_APPROVAL_TOKEN: ${FULL_RUN_APPROVAL_TOKEN:-}
     volumes:
       - artifacts:/artifacts
     depends_on:
