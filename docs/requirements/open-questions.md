@@ -1,13 +1,13 @@
-# Open questions and decisions
+# Open questions after authoritative contracts
 
-| Class | Question / current state |
+| Class | Decision |
 | --- | --- |
-| BLOCKER | Provide the original product specification, the verbatim teacher prompt and the complete label JSON schema. Previous conversation snippets are partial assistant proposals; the required product review cannot certify them. |
-| BLOCKER for live VPS validation/deployment | Provide an encrypted Coolify route (HTTPS or tunnel) and a reachable Docker execution route to the VPS. Public HTTP token use is prohibited by the supplied workflow. Current unauthenticated probes time out. |
-| NEEDS_DECISION | Confirm approved HF datasets/configs/revisions and source-specific field mappings, access controls and licenses. Four previously mentioned IDs are discovery leads, not validated source contracts. |
-| NEEDS_DECISION | Confirm exact calibration/40k strata, quotas, randomization, classifier target and export fields; a previous assistant proposal suggests 100→1k→5k and 28k/8k/4k but is not an approved contract. |
-| SAFE_DEFAULT | No automatic teacher labeling, including small batches, until the prompt/schema and cost policy are known. Mock-only tests can proceed. |
-| SAFE_DEFAULT | Disable production auto-deploy and require a recorded candidate commit, Docker pass, and explicit manual deploy. |
-| FUTURE | UI and manual adjudication workflow, if the original spec calls for them. |
+| NEEDS_DECISION | Approve exact HF dataset IDs, configs, splits, revisions, row-to-text mappings, licenses and retention. The previously noted four names are leads only. Production ingestion is gated per source until confirmed. |
+| NEEDS_DECISION | Approve 100/1k/5k calibration, 40k strata/quotas, sample sketch truncation, train/test split and export retention; do not silently turn prior suggestions into product requirements. |
+| NEEDS_DECISION | Select live teacher model/profile, endpoint and rate/cost budget. The example `Qwen/Qwen3.5-35B-A3B-FP8` in the envelope is illustrative, not an authorization to label. |
+| SAFE_DEFAULT | `DETERMINISTIC_REPAIR` only when all material noise flags are in the four specified deterministic classes, with at least one present. Other flags route to review unless an earlier explicitly safe condition applies. No repair is executed by routing. |
+| SAFE_DEFAULT | No teacher request without an explicitly created labeling run, and no 40k run without user approval. No real HF streaming or real teacher calls in test suite. |
+| SAFE_DEFAULT | When stable upstream IDs are absent, hash the exact source namespace/revision/config/split, ordinal and raw text digest. Reordering an upstream stream creates different identities; pin a source revision and fail closed on changed manifests. |
+| FUTURE | Near-duplicate algorithm, actual repair methods, adjudication UI, model training and publication. |
 
-Implementation is gated on the first BLOCKER. Coolify creation and deployment are gated on the second BLOCKER. The supplied temporary token must not be pasted into repo, PR, commands, or logs.
+The three product contracts no longer block a foundation implementation. Dataset-specific production adapters and sampling quotas remain gated by source decisions. VPS/Coolify work is assigned to another agent and out of this workstream.

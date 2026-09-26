@@ -1,5 +1,5 @@
-# Data flow — provisional
+# Data flow
 
-Pinned HF revision/config → streaming source adapter → normalized identity and metadata → seeded, stratified selection → persisted run decision/document → PostgreSQL queued job → leased worker → TeacherClient → strict product-schema validation → append-only attempt and accepted label → versioned Parquet export with provenance and leakage-safe split.
+Approved source/revision → bounded streaming adapter → immutable document text/hash/identity → sampling decision → explicit labeling run → queued job → worker lease → OpenAI-compatible client with exact system and user prompts → JSON parse/schema and ID validation → transactionally insert attempt/accepted label → separately apply versioned route policy. Failed attempts have bounded retries and no accepted label. Teacher receives no source metadata by default.
 
-Commit the selection before contacting the teacher. Keep raw content immutable; store derived sketch/metadata separately. Retry only bounded transient failures, record permanent invalid data distinctly, and pin every transformation version. Use a duplicate-family identifier in split assignment after the original contract determines normalization and near-duplicate policy.
+This foundation accepts an explicit selected document and records its sampling run; no HF adapter is enabled until source mappings are verified. A teacher sketch initially equals the exact original text for small, bounded documents. Sketch extraction for larger texts awaits an approved truncation contract and is rejected rather than silently truncating.

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://linguai.local/schemas/teacher_label_v1.schema.json",
+  "title": "Turkish CPT Teacher Quality Label",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "type", "q", "noise"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "type": {"type": "string", "enum": ["general", "reference", "academic_technical", "news", "conversation", "creative", "legal_official", "code", "structured_data", "noise_unknown"]},
+    "q": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["language", "coherence", "information", "cleanliness", "structure", "utility"],
+      "properties": {
+        "language": {"anyOf": [{"type": "integer", "minimum": 0, "maximum": 4}, {"type": "null"}]},
+        "coherence": {"type": "integer", "minimum": 0, "maximum": 4},
+        "information": {"type": "integer", "minimum": 0, "maximum": 4},
+        "cleanliness": {"type": "integer", "minimum": 0, "maximum": 4},
+        "structure": {"type": "integer", "minimum": 0, "maximum": 4},
+        "utility": {"type": "integer", "minimum": 0, "maximum": 4}
+      }
+    },
+    "noise": {"type": "array", "uniqueItems": true, "maxItems": 8, "items": {"type": "string", "enum": ["boilerplate_ui", "repetition", "seo_advertising", "markup_extraction", "encoding_ocr", "truncation_fragment", "unrelated_merge", "linguistic_corruption"]}}
+  }
+}
