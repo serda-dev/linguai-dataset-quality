@@ -45,3 +45,17 @@ def test_teacher_payload_does_not_add_source_and_keeps_sketch():
     assert "DOCUMENT_ID:\ndoc_a" in result
     assert "<<<DOCUMENT\n" + sketch + "\nDOCUMENT" in result
     assert "source_dataset" not in result
+
+
+@pytest.mark.parametrize("kind,scores,noise,expected", [
+    ("general", {"language": 4, "coherence": 4, "information": 4, "cleanliness": 4, "structure": 4, "utility": 4}, [], "PREMIUM"),
+    ("structured_data", {"language": None, "coherence": 3, "information": 4, "cleanliness": 4, "structure": 4, "utility": 3}, [], "KEEP"),
+    ("general", {"language": 4, "coherence": 3, "information": 1, "cleanliness": 1, "structure": 3, "utility": 1}, ["seo_advertising"], "DROP"),
+    ("conversation", {"language": 4, "coherence": 3, "information": 2, "cleanliness": 4, "structure": 3, "utility": 3}, [], "KEEP"),
+    ("noise_unknown", {"language": 0, "coherence": 0, "information": 0, "cleanliness": 0, "structure": 0, "utility": 0}, ["unrelated_merge"], "DROP"),
+    ("reference", {"language": 1, "coherence": 2, "information": 4, "cleanliness": 1, "structure": 2, "utility": 2}, ["encoding_ocr"], "MODEL_REPAIR"),
+])
+def test_acceptance_exemplars_represent_independent_observations(kind, scores, noise, expected):
+    response = {"id": "doc_case", "type": kind, "q": scores, "noise": noise}
+    validate_label(response, "doc_case")
+    assert route(response) == expected
