@@ -10,8 +10,8 @@ Source namespace, pinned revision/config/split, ordinal or stable source ID, ori
 
 ## Accepted label envelope
 
-`doc_id`, `teacher_label`, `format_flags`, `provenance` including `source_dataset`, `source_config`, `source_split`, `teacher_model`, `teacher_profile`, `teacher_prompt_version`, `teacher_schema_version`, `document_hash`, `sampling_run_id`, `labeling_run_id`. Route and `policy_version` are derived and persisted separately; recomputation never rewrites the teacher label. Unique acceptance key covers doc ID, labeling run, prompt/schema and model/profile. The same document can have labels from multiple runs/models.
+`doc_id`, `teacher_label`, `format_flags`, `provenance` including `source_dataset`, `source_config`, `source_split`, `teacher_model`, `teacher_profile`, `teacher_prompt_version`, `teacher_schema_version`, `document_hash`, `sampling_run_id`, `labeling_run_id`. Route and `policy_version` are derived and persisted separately; recomputation never rewrites the teacher label. The accepted-label uniqueness key is `(labeling_run_id, doc_id)`; a new model/prompt/schema evaluation of the same document requires a **new labeling run**. Pending jobs can use a replaced endpoint, and every attempt/accepted label retains its actual profile.
 
 ## Export
 
-Parquet envelope with provenance and source content reference; no implicit loss of source. Publication/training split and near-duplicate grouping await approved policy. Export must remain disabled until those decisions are implemented. The schema above describes only the teacher reply, never a database/export row.
+The bounded Parquet envelope includes original text, teacher JSON, format flags, policy route and provenance. Until an evaluation split and near-duplicate policy are approved, `split=train` for every row. Exact whitespace-normalized duplicate families have stable group IDs; no near-duplicate guarantee is claimed. The schema above describes only the teacher reply, never a database/export row.

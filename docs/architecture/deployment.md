@@ -1,3 +1,5 @@
 # Deployment contract for the VPS agent
 
 This repo supplies `Dockerfile`, production `compose.yaml`, isolated `compose.test.yaml`, `make test`, environment example and a smoke script. VPS agent checks out the exact candidate SHA, runs Docker tests before merging/deployment, then deploys `main` to a new isolated Coolify project with manual trigger; no GitHub Actions. Never run tests against production DB or real teacher. Post-deployment checks probe `/health`, `/ready`, worker heartbeat, teacher profile availability and artifact directory, without starting a labeling run. Resource sizing, host routing and Coolify integration are managed separately and remain unverified here.
+
+`scripts/predeploy.sh` checks the exact clean candidate SHA and executes `make test`. The deployment operator must match deployed image identity to that SHA. `scripts/smoke.sh` performs non-destructive GET checks after deployment. The production approval token defaults to empty; an admin token alone cannot authorize large cumulative reservations.

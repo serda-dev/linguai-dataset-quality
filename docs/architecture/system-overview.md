@@ -4,4 +4,6 @@ The VPS control plane owns PostgreSQL, one FastAPI API process and one worker pr
 
 The API currently exposes health/readiness and run/job management behind a runtime admin bearer token. The worker claims jobs with row locking and expiring leases, makes teacher requests through one client boundary, validates strictly and stores an accepted label once. Runtime teacher profile and credentials are read from environment; changing endpoint never rewrites historical provenance. The API does not expose original text or secrets.
 
+ADR 0003 adds an explicit run state machine, separately authenticated approval for the full-run threshold, a bounded HF streaming ingestion process, aggregate storage guard and train-only Parquet export. These operations keep original text and teacher JSON immutable. A run never starts from a mere document POST; worker claims only active, approved runs.
+
 Source adapters must implement a common normalized document contract; until dataset revisions/mappings are approved, only explicitly supplied documents can be enrolled through the protected API. Production HF ingestion, teacher calibration and export are distinct future gates, not implied by this foundation.
