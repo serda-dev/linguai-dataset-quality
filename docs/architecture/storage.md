@@ -1,3 +1,5 @@
-# Storage and disk budget — provisional
+# Storage
 
-PostgreSQL is authoritative for runs, leases, attempts and labels; a dedicated persistent artifact volume holds bounded Parquet exports and optional bounded source snippets. Never cache full HF corpora. Check free space before a run and before artifact writes, reserve headroom for PostgreSQL/WAL, image builds and backups, and fail closed on budget exhaustion. Track per-run artifact bytes, retention and checksum. Exact quotas and backup capacity require live VPS measurement and source retention policy. Use atomic temporary-file write then rename plus DB artifact registration for restart safety; reconcile orphan temporaries.
+PostgreSQL tables: `documents` with immutable source coordinates, content hash and text; `labeling_runs`; `jobs` with unique run/document, claim token, lease, bounded attempts; `attempts` with outcome and safe error class, no raw payload; `labels` with unique run/document and full model/profile/prompt/schema/hash provenance; `worker_state` heartbeat. Database initialized by an idempotent schema script for this new, empty project only; future schema changes require explicit migrations. No destructive change is authorized.
+
+The artifact directory is isolated and writable for a non-destructive smoke check. No Parquet export is implemented until split, leakage and retention contracts are approved. A configurable document byte limit blocks unbounded DB storage; no full corpus cache is used.

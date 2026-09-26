@@ -1,0 +1,7 @@
+DOCUMENT_ID:
+{{doc_id}}
+
+DOCUMENT:
+<<<DOCUMENT
+{{teacher_sketch}}
+DOCUMENT

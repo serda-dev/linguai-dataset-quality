@@ -1,0 +1,66 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: quality_test
+      POSTGRES_USER: quality_test
+      POSTGRES_PASSWORD: isolated_test_only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quality_test -d quality_test"]
+      interval: 2s
+      retries: 15
+  mock-teacher:
+    build: .
+    command: uvicorn tests.mock_teacher:app --host 0.0.0.0 --port 8090
+    volumes:
+      - ./tests:/app/tests:ro
+  init:
+    build: .
+    command: python -m linguai_quality.init_db
+    environment: &test-env
+      DATABASE_URL: postgresql://quality_test:isolated_test_only@postgres:5432/quality_test
+      ADMIN_TOKEN: isolated_test_token
+      TEACHER_BASE_URL: http://mock-teacher:8090/v1
+      TEACHER_API_KEY: isolated_test_key
+      TEACHER_MODEL: mock-quality
+      TEACHER_PROFILE: test-profile-v1
+      ARTIFACT_DIR: /artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+  api:
+    build: .
+    environment: *test-env
+    volumes:
+      - artifacts_test:/artifacts
+    depends_on:
+      init:
+        condition: service_completed_successfully
+  worker:
+    build: .
+    environment: *test-env
+    # The test runner claims jobs deterministically; this process only supplies heartbeat.
+    # Integration tests exercise the same worker.step function directly.
+    # Set in command to avoid mutating the shared test-env anchor.
+    command: sh -c 'WORKER_TEST_IDLE=1 python -m linguai_quality.worker'
+    volumes:
+      - artifacts_test:/artifacts
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      mock-teacher:
+        condition: service_started
+  tests:
+    build: .
+    command: pytest -q
+    volumes:
+      - ./tests:/app/tests:ro
+      - artifacts_test:/artifacts
+    environment: *test-env
+    depends_on:
+      api:
+        condition: service_started
+      worker:
+        condition: service_started
+volumes:
+  artifacts_test:

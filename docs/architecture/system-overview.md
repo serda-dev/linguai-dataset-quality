@@ -1,5 +1,7 @@
-# System overview — provisional architecture
+# Architecture — contracted foundation
 
-FastAPI control API and one worker share PostgreSQL for configuration, source runs, document identities, sample decisions, jobs, claims, attempts and accepted label provenance. Filesystem-backed Parquet stores exports; PostgreSQL retains artifact metadata and checksums. Each approved HF dataset gets an adapter yielding the same immutable document contract from a streaming iterator. An OpenAI-compatible TeacherClient talks to a replaceable Vast.AI endpoint; mock client implements the same boundary in tests. The worker holds a bounded lease on queued jobs and validates replies against the as-yet-unsupplied schema. No permanent GPU service on VPS.
+The VPS control plane owns PostgreSQL, one FastAPI API process and one worker process. The disposable teacher provides OpenAI-compatible inference; it owns no durable state. PostgreSQL holds immutable documents and accepted labels, sampling/labeling run identities, jobs, leases, attempts and provenance. An isolated persistent directory is reserved for future atomic Parquet artifacts; this first slice does not export or retain source corpora.
 
-This is a design proposal subject to exact product specification and inspection of live deployment constraints. No schema/migration or provider-specific implementation is approved yet.
+The API currently exposes health/readiness and run/job management behind a runtime admin bearer token. The worker claims jobs with row locking and expiring leases, makes teacher requests through one client boundary, validates strictly and stores an accepted label once. Runtime teacher profile and credentials are read from environment; changing endpoint never rewrites historical provenance. The API does not expose original text or secrets.
+
+Source adapters must implement a common normalized document contract; until dataset revisions/mappings are approved, only explicitly supplied documents can be enrolled through the protected API. Production HF ingestion, teacher calibration and export are distinct future gates, not implied by this foundation.

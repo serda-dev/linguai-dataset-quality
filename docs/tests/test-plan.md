@@ -1,11 +1,10 @@
-# Meaningful test design — pre-implementation
+# Meaningful test design
 
-Run `make test` against isolated Docker Compose PostgreSQL, API, worker, deterministic mock OpenAI-compatible teacher and test runner. Fail nonzero, tear down volumes, prohibit production credentials/real Vast calls. Tests must falsify contracts rather than count coverage.
+The canonical `make test` starts an isolated PostgreSQL, mock OpenAI-compatible endpoint, API, worker and test runner with Docker Compose; `down -v` runs on exit. No production secrets, real HF datasets or Vast calls.
 
-- Units: stable document identity under identical source revision; distinct revisions/records; sketch and metadata extraction without raw mutation; deterministic sampling; policy for structured content; strict schema validation after verbatim schema is supplied.
-- Integration: DB migrations on empty DB; concurrent claim uniqueness; retry ceiling; expired-lease recovery; duplicate accepted-label rejection; worker killed during request/commit boundary; DB restart; mock timeout, unavailable endpoint, invalid JSON, malformed source record, HF stream interruption; endpoint profile replacement; atomic Parquet export/checksum.
-- Acceptance: execute scenarios in `features/` with fake streams and mock teacher; no GPU or real HF corpus required. Extend for exact prompt, schema and dataset mappings once supplied.
-- Failure/resource: disk budget reached must stop safely; bounded memory and artifact size; no secret or raw-source logging; test split duplicate-family isolation.
-- VPS Gate A: exact candidate SHA/image, isolated Compose stack, integration/acceptance and migration tests. Gate B: deployed read-only /health, /ready, DB connectivity, worker heartbeat, artifact write/read and teacher configuration. Neither gate starts teacher labeling.
+1. Unit: stable identity across exact source coordinates and content; distinct hash/revision; strict schema including null language, no extra fields and exact ID; exact prompt/template substitution and absence of source names; routing priority and noisy valuable cases; text byte limit and immutable original.
+2. Integration: schema creation, explicit enrollment, concurrent lease claim uniqueness, attempt provenance, invalid JSON and mismatched ID retry, worker crash/lease expiry, stale lease rejection, duplicate accepted label, replaceable teacher profile. Database outage should fail readiness and pause work.
+3. Acceptance: source independent labeling for a code document (`language=null`), high-I low-N repair routing, SEO filler with high L and low I, natural conversation without academic penalty. These are fake teacher judgments; tests assert preservation and routing, not that a mock can reason about quality.
+4. Failure: teacher timeout/unavailable, worker mid-job, DB restart, HF interruption/malformed record and disk budget. The last two are gated with the production HF adapter and export, and explicitly not claimed by this foundation.
 
-Status: design only. Docker absent locally; VPS unavailable; no test execution claimed.
+Gate A on VPS remains required to certify Docker tests; local Python tests only provide a narrower signal. Gate B is read-only except controlled artifact write/read. No labeling starts in either smoke gate.

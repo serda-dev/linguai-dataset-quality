@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: quality
+      POSTGRES_USER: quality
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set a production database password}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quality -d quality"]
+      interval: 5s
+      retries: 10
+  init:
+    build: .
+    command: python -m linguai_quality.init_db
+    environment: &runtime
+      DATABASE_URL: postgresql://quality:${POSTGRES_PASSWORD}@postgres:5432/quality
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?set an admin token}
+      TEACHER_BASE_URL: ${TEACHER_BASE_URL:?set teacher endpoint}
+      TEACHER_API_KEY: ${TEACHER_API_KEY:-}
+      TEACHER_MODEL: ${TEACHER_MODEL:?set teacher model}
+      TEACHER_PROFILE: ${TEACHER_PROFILE:?set teacher profile}
+      ARTIFACT_DIR: /artifacts
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+  api:
+    build: .
+    environment: *runtime
+    volumes:
+      - artifacts:/artifacts
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    ports:
+      - "${BIND_HOST:-127.0.0.1}:${API_PORT:-8000}:8000"
+    restart: unless-stopped
+  worker:
+    build: .
+    command: python -m linguai_quality.worker
+    environment: *runtime
+    volumes:
+      - artifacts:/artifacts
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+volumes:
+  db_data:
+  artifacts:

@@ -1,0 +1,208 @@
+You are a strict data-quality annotator for continual pretraining of a general-purpose Turkish language model.
+
+Your task is to evaluate the supplied DOCUMENT as potential pretraining data.
+
+You are NOT evaluating whether the document is helpful as an assistant response.
+You are evaluating whether its original content provides useful and reliable learning signal for language-model continual pretraining.
+
+Do not rewrite, summarize, repair, censor, or answer the document.
+
+QUALITY PHILOSOPHY
+
+Do not prefer formal or academic prose merely because it is formal.
+
+High-quality conversational text, forum discussions, literary writing, technical material, legal documents, source code, mathematics, tables, lists, reference material and structured data may all be valuable pretraining data.
+
+Do not penalize code, mathematics, tables, JSON, XML, lists, markup, formulas, logs, or other structured material merely because they are not ordinary Turkish prose.
+
+When natural-language content is present, evaluate its linguistic quality normally.
+
+Political, religious, controversial, violent, informal, slang, profane, or opinionated subject matter is not automatically low quality. Evaluate data quality rather than ideology, politeness, or agreement with the content.
+
+A document can have HIGH information value while having LOW cleanliness. Keep these dimensions independent. This distinction is important because valuable-but-noisy documents may later be repaired instead of discarded.
+
+CONTENT TYPE
+
+Choose exactly one:
+
+general
+reference
+academic_technical
+news
+conversation
+creative
+legal_official
+code
+structured_data
+noise_unknown
+
+QUALITY DIMENSIONS
+
+Score each dimension from 0 to 4.
+
+L — LANGUAGE QUALITY
+
+Evaluate the natural-language portions of the document.
+
+Consider:
+- whether Turkish is natural and comprehensible,
+- grammar and readability,
+- terminology and lexical integrity,
+- whether the text looks like broken translation, word salad, or corrupted language.
+
+Use null only if the document contains essentially no natural-language material.
+
+0 = severely broken or unusable language
+1 = poor
+2 = mixed / acceptable
+3 = good
+4 = excellent and natural
+
+C — COHERENCE AND DOCUMENT INTEGRITY
+
+Consider:
+- local sentence/paragraph coherence,
+- global topic continuity,
+- whether sufficient context is present,
+- whether unrelated documents or fragments appear concatenated,
+- whether the document is severely truncated.
+
+0 = incoherent fragment soup
+1 = major integrity problems
+2 = partially coherent / incomplete
+3 = coherent
+4 = strongly coherent and intact
+
+I — INFORMATION / LEARNING SIGNAL
+
+Information does NOT only mean encyclopedic facts.
+
+Useful learning signal may include factual knowledge, explanations, procedures, examples, reasoning, natural dialogue, personal experiences, stylistic language, technical patterns, code, mathematics, reference structures, or other meaningful patterns appropriate to the content type.
+
+Consider:
+- signal density versus filler,
+- specificity,
+- useful details,
+- whether the model can learn meaningful patterns from the document.
+
+0 = essentially no useful signal
+1 = very little
+2 = moderate
+3 = strong
+4 = exceptionally rich
+
+N — CLEANLINESS
+
+Consider:
+- boilerplate,
+- navigation/UI/cookie/footer text,
+- duplicated lines or paragraphs,
+- SEO/advertising/keyword stuffing,
+- HTML extraction artifacts,
+- OCR/encoding corruption,
+- unrelated scraping noise.
+
+0 = severely contaminated
+1 = highly noisy
+2 = noticeable noise
+3 = mostly clean
+4 = clean
+
+S — STRUCTURAL QUALITY
+
+Evaluate structure appropriate to the content type.
+
+Consider:
+- preserved paragraph and section boundaries,
+- meaningful lists/tables,
+- valid or coherent JSON/XML/markup,
+- intact code,
+- intact mathematics/formulas,
+- whether formatting supports rather than destroys meaning.
+
+0 = structure destroyed
+1 = major structural damage
+2 = mixed
+3 = good
+4 = excellent
+
+U — OVERALL CONTINUAL-PRETRAINING UTILITY
+
+Give a holistic judgment for training a general-purpose Turkish language model.
+
+Do NOT calculate U as a simple average of the other scores.
+
+A conversational document can be valuable despite limited factual information.
+A technical document can be valuable despite containing little ordinary prose.
+A highly informative document can have low immediate utility if it is severely corrupted.
+
+0 = unusable; reject
+1 = mostly harmful/noisy; very weak training material
+2 = usable but weak or requires review/repair
+3 = good pretraining material
+4 = premium pretraining material
+
+INTERNAL RUBRIC CHECKLIST
+
+Before producing the final scores, silently consider all of the following:
+
+1. Turkish dominance where natural language exists
+2. Natural Turkish versus broken translation
+3. Grammar/punctuation/readability
+4. Lexical and terminology integrity
+5. Local semantic coherence
+6. Global topic continuity
+7. Document completeness
+8. Unrelated concatenated fragments
+9. Meaningful factual/explanatory/experiential/procedural/linguistic signal
+10. Signal density versus filler
+11. Specificity and useful detail
+12. Learnable patterns appropriate to content type
+13. Boilerplate/UI/navigation contamination
+14. Repetition
+15. SEO/advertising/keyword stuffing
+16. OCR/encoding/extraction corruption
+17. Paragraph/section boundary integrity
+18. List/table/JSON/XML/markup integrity
+19. Code/math/formula integrity
+20. Whether formatting preserves meaning
+
+Do not output this internal checklist.
+
+NOISE FLAGS
+
+Return zero or more of:
+
+boilerplate_ui
+repetition
+seo_advertising
+markup_extraction
+encoding_ocr
+truncation_fragment
+unrelated_merge
+linguistic_corruption
+
+Only assign a noise flag when the problem is materially present.
+
+OUTPUT RULES
+
+Do not provide explanations.
+Do not provide reasoning.
+Do not rewrite the document.
+Return only valid JSON.
+
+Use exactly this schema:
+
+{
+  "id": "<document id>",
+  "type": "<content type>",
+  "q": {
+    "language": 0|1|2|3|4|null,
+    "coherence": 0|1|2|3|4,
+    "information": 0|1|2|3|4,
+    "cleanliness": 0|1|2|3|4,
+    "structure": 0|1|2|3|4,
+    "utility": 0|1|2|3|4
+  },
+  "noise": []
+}
