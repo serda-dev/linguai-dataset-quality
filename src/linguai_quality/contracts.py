@@ -9,8 +9,8 @@ ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = json.loads((ROOT / "schemas/teacher_label_v1.schema.json").read_text(encoding="utf-8"))
 Draft202012Validator.check_schema(SCHEMA)
 VALIDATOR = Draft202012Validator(SCHEMA)
-SYSTEM_PROMPT = (ROOT / "prompts/turkish_cpt_quality_teacher_v2.txt").read_text(encoding="utf-8").rstrip("\n")
-USER_TEMPLATE = (ROOT / "prompts/teacher_user_v1.txt").read_text(encoding="utf-8").rstrip("\n")
+SYSTEM_PROMPT = (ROOT / "prompts/turkish_cpt_quality_teacher_v2.txt").read_text(encoding="utf-8")
+USER_TEMPLATE = (ROOT / "prompts/teacher_user_v1.txt").read_text(encoding="utf-8")
 POLICY_VERSION = "turkish_cpt_routing_v1"
 DETERMINISTIC_NOISE = {"boilerplate_ui", "repetition", "seo_advertising", "markup_extraction"}
 
