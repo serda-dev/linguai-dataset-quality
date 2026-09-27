@@ -12,6 +12,8 @@ LOG = logging.getLogger(__name__)
 
 
 def step(store: Store, client: TeacherClient, settings: Settings) -> bool:
+    if not settings.teacher_configured:
+        return False
     job = store.claim(settings.max_attempts)
     if not job:
         return False
