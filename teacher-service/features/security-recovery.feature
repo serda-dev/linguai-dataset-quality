@@ -7,11 +7,17 @@ Feature: Isolated authenticated teacher inference and replacement
     Then the service denies the request before model execution
     And it does not echo the document, secret or prompt in the response or logs
 
-  Scenario: The service is reached from the VPS
-    Given the GPU instance exposes a selected inference port
-    When the VPS worker connects to the endpoint
-    Then the path uses an authenticated encrypted transport or a private encrypted tunnel
+  Scenario: A short public-source connectivity trial uses direct HTTP by explicit choice
+    Given a dedicated teacher-only Bearer key and a deliberately small trial scope
+    When the VPS worker reaches the GPU's mapped public port over HTTP
+    Then the risk of readable key, request and response traffic is recorded
     And the Jupyter interface is not used as a substitute for the inference API
+
+  Scenario: Bulk labeling or sensitive documents use encrypted transport
+    Given a measured GPU endpoint and a verified route from the VPS worker
+    When a bulk or sensitive run is enabled
+    Then the path uses direct TLS or a verified encrypted tunnel
+    And the teacher key is dedicated to this service
 
   Scenario: The teacher process stops during a request
     Given a persisted claim and in-flight attempt on the VPS
