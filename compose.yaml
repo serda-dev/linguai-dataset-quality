@@ -1,3 +1,18 @@
+x-runtime: &runtime
+  DATABASE_URL: ${DATABASE_URL:?set an appropriately URL-encoded database DSN}
+  ADMIN_TOKEN: ${ADMIN_TOKEN:?set an admin token}
+  TEACHER_BASE_URL: ${TEACHER_BASE_URL:-}
+  TEACHER_API_KEY: ${TEACHER_API_KEY:-}
+  TEACHER_MODEL: ${TEACHER_MODEL:-}
+  TEACHER_PROFILE: ${TEACHER_PROFILE:-}
+  ARTIFACT_DIR: /artifacts
+  MAX_DOCUMENT_BYTES: ${MAX_DOCUMENT_BYTES:-100000}
+  MAX_ATTEMPTS: ${MAX_ATTEMPTS:-3}
+  MAX_DATABASE_BYTES: ${MAX_DATABASE_BYTES:-8000000000}
+  MAX_EXPORT_BYTES: ${MAX_EXPORT_BYTES:-1000000000}
+  MIN_ARTIFACT_FREE_BYTES: ${MIN_ARTIFACT_FREE_BYTES:-2000000000}
+  UNAPPROVED_JOB_CEILING: ${UNAPPROVED_JOB_CEILING:-5000}
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -10,22 +25,14 @@ services:
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U quality -d quality"]
       interval: 5s
+      timeout: 5s
       retries: 10
+    restart: unless-stopped
   init:
     build: .
     command: python -m linguai_quality.init_db
-    environment: &runtime
+    environment:
       DATABASE_URL: ${DATABASE_URL:?set an appropriately URL-encoded database DSN}
-      ADMIN_TOKEN: ${ADMIN_TOKEN:?set an admin token}
-      TEACHER_BASE_URL: ${TEACHER_BASE_URL:?set teacher endpoint}
-      TEACHER_API_KEY: ${TEACHER_API_KEY:-}
-      TEACHER_MODEL: ${TEACHER_MODEL:?set teacher model}
-      TEACHER_PROFILE: ${TEACHER_PROFILE:?set teacher profile}
-      ARTIFACT_DIR: /artifacts
-      MAX_DATABASE_BYTES: ${MAX_DATABASE_BYTES:-8000000000}
-      MAX_EXPORT_BYTES: ${MAX_EXPORT_BYTES:-1000000000}
-      MIN_ARTIFACT_FREE_BYTES: ${MIN_ARTIFACT_FREE_BYTES:-2000000000}
-      UNAPPROVED_JOB_CEILING: ${UNAPPROVED_JOB_CEILING:-5000}
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,6 +49,12 @@ services:
         condition: service_completed_successfully
     ports:
       - "${BIND_HOST:-127.0.0.1}:${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     restart: unless-stopped
   worker:
     build: .

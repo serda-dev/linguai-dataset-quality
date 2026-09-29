@@ -19,12 +19,17 @@ class Settings:
     unapproved_ceiling: int = 5_000
     full_run_approval_token: str = ""
 
+    @property
+    def teacher_configured(self) -> bool:
+        return all(value.strip() for value in (
+            self.teacher_base_url, self.teacher_model, self.teacher_profile))
+
     @classmethod
     def from_env(cls) -> "Settings":
         return cls(
             database_url=os.environ["DATABASE_URL"], admin_token=os.environ["ADMIN_TOKEN"],
-            teacher_base_url=os.environ["TEACHER_BASE_URL"], teacher_api_key=os.environ.get("TEACHER_API_KEY", ""),
-            teacher_model=os.environ["TEACHER_MODEL"], teacher_profile=os.environ["TEACHER_PROFILE"],
+            teacher_base_url=os.environ.get("TEACHER_BASE_URL", ""), teacher_api_key=os.environ.get("TEACHER_API_KEY", ""),
+            teacher_model=os.environ.get("TEACHER_MODEL", ""), teacher_profile=os.environ.get("TEACHER_PROFILE", ""),
             artifact_dir=os.environ["ARTIFACT_DIR"],
             max_document_bytes=int(os.environ.get("MAX_DOCUMENT_BYTES", "100000")),
             max_attempts=int(os.environ.get("MAX_ATTEMPTS", "3")),

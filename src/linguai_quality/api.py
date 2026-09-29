@@ -66,7 +66,7 @@ def ready(settings: Settings = Depends(config)):
             probe.seek(0)
             if probe.read() != b"ok":
                 raise RuntimeError("artifact path read/write failed")
-        if not settings.teacher_base_url or not settings.teacher_model or not settings.teacher_profile or not worker:
+        if not settings.teacher_configured or not worker:
             raise RuntimeError("worker or teacher profile unavailable")
         return {"status": "ready", "worker": "alive", "teacher_profile": "configured"}
     except Exception:
@@ -129,6 +129,8 @@ def finish_manual(run_id: str, settings: Settings = Depends(config)):
 
 @app.post("/runs/{run_id}/start", dependencies=[Depends(authorized)])
 def start(run_id: str, settings: Settings = Depends(config)):
+    if not settings.teacher_configured:
+        raise HTTPException(status_code=503, detail="teacher is not configured")
     try:
         transition(Store(settings.database_url), run_id, "ready", "active")
         return {"status": "active"}

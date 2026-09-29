@@ -1,11 +1,11 @@
+import os
 import time
 
 from .db import Store
-from .settings import Settings
 
 
 def main():
-    store = Store(Settings.from_env().database_url)
+    store = Store(os.environ["DATABASE_URL"])
     for _ in range(30):
         try:
             store.initialize()
