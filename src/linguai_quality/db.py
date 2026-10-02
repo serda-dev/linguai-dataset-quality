@@ -76,14 +76,15 @@ class Store:
             raise ValueError("database storage budget reached")
 
     def consider_candidate(self, run: dict, ordinal: int, text: str | None, record_digest: str,
-                           next_digest: str, max_database_bytes: int):
-        from .runs import sample_rank
+                           next_digest: str, max_database_bytes: int, *, invalid: bool = False):
+        from .runs import sample_rank, sampling_stratum
 
         with self.connect() as conn:
             live = conn.execute("SELECT cursor,prefix_digest,status FROM run_controls WHERE run_id=%s FOR UPDATE", (run["run_id"],)).fetchone()
             if not live or live["status"] != "collecting" or (live["cursor"], live["prefix_digest"]) != (ordinal, run["prefix_digest"]):
                 raise ValueError("concurrent or stale source cursor")
-            if text is not None:
+            if text is not None and (run.get("stratum", "all") == "all"
+                                     or sampling_stratum(text) == run["stratum"]):
                 rank = sample_rank(run["seed"], ordinal, record_digest)
                 worst = conn.execute("SELECT doc_id,rank,octet_length(original_text) AS bytes FROM sample_candidates WHERE run_id=%s ORDER BY rank DESC LIMIT 1", (run["run_id"],)).fetchone()
                 count = conn.execute("SELECT count(*) AS n FROM sample_candidates WHERE run_id=%s", (run["run_id"],)).fetchone()["n"]
@@ -99,7 +100,7 @@ class Store:
                          json.dumps(format_flags(text)),family_id(text)))
                     conn.execute("UPDATE storage_budget SET candidate_bytes=candidate_bytes+%s WHERE id=true", (len(text.encode("utf-8")),))
             conn.execute("""UPDATE run_controls SET cursor=cursor+1,prefix_digest=%s,
-                rejected_records=rejected_records+%s WHERE run_id=%s""", (next_digest, int(text is None), run["run_id"]))
+                rejected_records=rejected_records+%s WHERE run_id=%s""", (next_digest, int(invalid), run["run_id"]))
 
     def finalize_sample(self, run_id: str, max_database_bytes: int):
         with self.connect() as conn:

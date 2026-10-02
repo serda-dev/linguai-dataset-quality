@@ -3,7 +3,7 @@ import types
 
 import pytest
 
-from linguai_quality.runs import SourcePlan, ZERO_DIGEST, extend_digest, fingerprint, format_flags, sample_rank, stream_hf, ingest_records
+from linguai_quality.runs import SourcePlan, ZERO_DIGEST, extend_digest, fingerprint, format_flags, sample_rank, sampling_stratum, stream_hf, ingest_records
 
 
 def test_source_contract_and_reproducible_rank():
@@ -16,6 +16,11 @@ def test_source_contract_and_reproducible_rank():
     assert sample_rank(9, 3, record) != sample_rank(10, 3, record)
     assert extend_digest("0"*64, 0, record) != extend_digest("0"*64, 1, record)
     assert "code" in format_flags("def test(): pass")
+    assert sampling_stratum("Normal bir Türkçe paragraf. " * 20) == "normal"
+    assert sampling_stratum("Bozuk") == "noisy_edge"
+    assert sampling_stratum("def hesapla():\n    return 1") == "structured"
+    with pytest.raises(ValueError, match="stratum"):
+        SourcePlan("r", "dataset/repo", "a"*40, "cfg", "train", "text", 9, 100, 10, True, "unknown").validate()
 
 
 def test_hf_adapter_uses_streaming_pinned_revision(monkeypatch):
@@ -43,7 +48,7 @@ def test_interrupted_stream_replay_refuses_changed_prefix(monkeypatch):
             self.rows = []
             self.finalized = False
 
-        def consider_candidate(self, state, ordinal, text, digest, next_digest, max_database_bytes):
+        def consider_candidate(self, state, ordinal, text, digest, next_digest, max_database_bytes, *, invalid=False):
             self.rows.append(text)
 
         def finalize_sample(self, run_id, max_database_bytes):

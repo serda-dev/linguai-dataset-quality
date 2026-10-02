@@ -12,6 +12,7 @@ from .contracts import document_id
 ZERO_DIGEST = "0" * 64
 FULL_THRESHOLD = 40_000
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
+STRATA = frozenset({"all", "normal", "noisy_edge", "structured"})
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,7 @@ class SourcePlan:
     max_scan: int
     sample_size: int
     license_ack: bool
+    stratum: str = "all"
 
     def validate(self):
         if not self.run_id or not self.source or not self.text_field or not self.split:
@@ -36,6 +38,8 @@ class SourcePlan:
             raise ValueError("positive bounded scan, quota and seed required")
         if not self.license_ack:
             raise ValueError("source rights acknowledgement required")
+        if self.stratum not in STRATA:
+            raise ValueError("unknown sampling stratum")
 
 
 def fingerprint(record: object) -> str:
@@ -77,14 +81,24 @@ def format_flags(text: str) -> list[str]:
     return flags
 
 
+def sampling_stratum(text: str) -> str:
+    """Exclusive, deterministic content buckets; these are sampling cues, not teacher labels."""
+    if format_flags(text) or text.count(":") >= 2 or re.search(r"(?m)^\s*\d+[.)]\s", text):
+        return "structured"
+    if (len(text) < 300 or len(text) > 4_000 or "\ufffd" in text
+            or sum(not ch.isalpha() and not ch.isspace() for ch in text) / len(text) > 0.20):
+        return "noisy_edge"
+    return "normal"
+
+
 def create_run(store, plan: SourcePlan):
     plan.validate()
     with store.connect() as conn:
         conn.execute("INSERT INTO labeling_runs(id) VALUES (%s)", (plan.run_id,))
-        conn.execute("""INSERT INTO run_controls(run_id,source,revision,config,split,text_field,seed,max_scan,sample_size,license_ack)
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+        conn.execute("""INSERT INTO run_controls(run_id,source,revision,config,split,text_field,seed,max_scan,sample_size,license_ack,stratum)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
             (plan.run_id, plan.source, plan.revision, plan.config, plan.split, plan.text_field,
-             plan.seed, plan.max_scan, plan.sample_size, plan.license_ack))
+             plan.seed, plan.max_scan, plan.sample_size, plan.license_ack, plan.stratum))
 
 
 def approve_run(store, run_id: str, *, supplied_full_token: str, configured_full_token: str,
@@ -152,11 +166,13 @@ def ingest_records(store, run_id: str, records, *, max_document_bytes: int, max_
         if prior != run["prefix_digest"]:
             raise ValueError("stream prefix changed; resume refused")
         raw = record.get(run["text_field"]) if isinstance(record, dict) else None
-        text = raw if isinstance(raw, str) and raw.strip() else None
+        invalid = not isinstance(raw, str) or not raw.strip()
+        text = raw if not invalid else None
         if text is not None and len(text.encode("utf-8")) > max_document_bytes:
             text = None
-        store.consider_candidate(run, ordinal, text, digest, next_digest, max_database_bytes)
-        if text is None:
+        store.consider_candidate(run, ordinal, text, digest, next_digest, max_database_bytes,
+                                 invalid=invalid)
+        if invalid:
             run["rejected_records"] += 1
             if run["rejected_records"] > max_bad_records:
                 raise ValueError("malformed source record limit exceeded")

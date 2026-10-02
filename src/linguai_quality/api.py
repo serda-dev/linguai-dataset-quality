@@ -44,6 +44,7 @@ class RunRequest(BaseModel):
     max_scan: int = Field(gt=0, le=10_000_000)
     sample_size: int = Field(gt=0, le=40_000)
     license_ack: bool = False
+    stratum: str = "all"
 
 
 @app.get("/health")
@@ -143,5 +144,14 @@ def pause(run_id: str, settings: Settings = Depends(config)):
     try:
         transition(Store(settings.database_url), run_id, "active", "paused")
         return {"status": "paused"}
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from None
+
+
+@app.post("/runs/{run_id}/resume", dependencies=[Depends(authorized)])
+def resume(run_id: str, settings: Settings = Depends(config)):
+    try:
+        transition(Store(settings.database_url), run_id, "paused", "active")
+        return {"status": "active"}
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from None

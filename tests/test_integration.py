@@ -150,6 +150,41 @@ def test_approval_quota_and_persisted_prefix_resume(store):
     assert store.finish(other, model="mock", profile="test", error_class="Skipped", max_attempts=1)
 
 
+def test_stratified_sampling_keeps_exclusive_buckets(store):
+    texts = ["Normal bir Türkçe paragraf. " * 20, "Kısa parça", "def hesapla():\n    return 1"]
+    for stratum, expected in zip(("normal", "noisy_edge", "structured"), texts):
+        run = str(uuid.uuid4())
+        create_run(store, SourcePlan(run, "fixture/hf", "a"*40, "cfg", "train", "text",
+                                     17, 3, 1, True, stratum))
+        approve_run(store, run, supplied_full_token="", configured_full_token="",
+                    unapproved_ceiling=5000)
+        ingest_records(store, run, [{"text": text} for text in texts],
+                       max_document_bytes=1000, max_database_bytes=8_000_000_000)
+        with store.connect() as conn:
+            rows = conn.execute("""SELECT d.original_text FROM jobs j JOIN documents d ON d.id=j.doc_id
+                WHERE j.run_id=%s""", (run,)).fetchall()
+            assert [row["original_text"] for row in rows] == [expected]
+        assert get_run(store, run)["stratum"] == stratum
+        transition(store, run, "ready", "active")
+        transition(store, run, "active", "paused")
+        transition(store, run, "paused", "active")
+        assert get_run(store, run)["status"] == "active"
+        transition(store, run, "active", "paused")
+
+
+def test_oversize_record_is_ineligible_without_malformed_budget(store):
+    run = str(uuid.uuid4())
+    create_run(store, SourcePlan(run, "fixture/hf", "a"*40, "cfg", "train", "text",
+                                 17, 3, 2, True))
+    approve_run(store, run, supplied_full_token="", configured_full_token="",
+                unapproved_ceiling=5000)
+    ingest_records(store, run, [{"text": "x" * 101}, {"text": "kısa bir"}, {"text": "ikinci kısa"}],
+                   max_document_bytes=100, max_database_bytes=8_000_000_000)
+    assert get_run(store, run)["rejected_records"] == 0
+    with store.connect() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM jobs WHERE run_id=%s", (run,)).fetchone()["n"] == 2
+
+
 def test_failed_teacher_records_attempt_and_export_train_only(store, tmp_path):
     run = str(uuid.uuid4())
     manual_run(store, run, 2)

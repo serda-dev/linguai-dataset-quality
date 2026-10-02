@@ -6,6 +6,7 @@ x-runtime: &runtime
   TEACHER_MODEL: ${TEACHER_MODEL:-}
   TEACHER_PROFILE: ${TEACHER_PROFILE:-}
   ARTIFACT_DIR: /artifacts
+  HF_HOME: /artifacts/hf-cache
   MAX_DOCUMENT_BYTES: ${MAX_DOCUMENT_BYTES:-100000}
   MAX_ATTEMPTS: ${MAX_ATTEMPTS:-3}
   MAX_DATABASE_BYTES: ${MAX_DATABASE_BYTES:-8000000000}
@@ -59,7 +60,9 @@ services:
   worker:
     build: .
     command: python -m linguai_quality.worker
-    environment: *runtime
+    environment:
+      <<: *runtime
+      HF_TOKEN: ${HF_TOKEN:-}
     volumes:
       - artifacts:/artifacts
     depends_on:
