@@ -11,3 +11,9 @@
 | FUTURE | Near-duplicate algorithm, actual repair methods, adjudication UI, model training and publication. |
 
 The three product contracts no longer block a bounded generic implementation. Concrete dataset mappings, source-specific quotas and evaluation splits remain gated by source decisions. VPS/Coolify work is assigned to another agent and out of this workstream.
+
+The user supplied and authorized a bounded four-source Teacher campaign on
+2026-10-02. Its pinned source mappings and quotas are recorded in
+`../operations/2026-10-02-bounded-source-plan.md`. That decision resolves source
+selection only for this campaign; evaluation split, broader corpus ingestion,
+student training and export retention remain separate decisions.

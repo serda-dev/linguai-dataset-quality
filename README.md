@@ -2,7 +2,7 @@
 
 Early control-plane foundation for the authoritative `TURKISH_CPT_DATA_QUALITY_SPEC_v1`. The exact teacher prompt and reply schema are versioned under `prompts/` and `schemas/`. Teacher observations, policy routes and provenance are separate contracts.
 
-The bounded run workflow is described in `docs/requirements/gap-closure-v1.md` and ADR 0003. The source owner must approve the exact HF repository, config, split, revision SHA, text field and usage rights. Nothing in this repository approves a particular upstream corpus or teacher spend.
+The bounded run workflow is described in `docs/requirements/gap-closure-v1.md` and ADR 0003. The source owner must approve the exact HF repository, config, split, revision SHA, text field and usage rights. The 2026-10-02 four-source, 40,000-job campaign is recorded separately in `docs/operations/2026-10-02-bounded-source-plan.md`; it authorizes only that bounded plan, not a full-corpus download.
 
 ## Validation
 
@@ -18,7 +18,7 @@ Without Docker, `python -m pip install -e '.[test]' && python -m pytest -q` chec
 
 Only the API is bound to `127.0.0.1` by default. `/health` checks process liveness and is used by Compose; `/ready` checks PostgreSQL, a recent worker heartbeat, teacher configuration and artifact write/read. `/ready` intentionally returns 503 before teacher configuration is supplied; a 200 response does not prove live teacher reachability or quality. POST `/documents` requires a bearer admin token and queues one bounded document with source coordinates, sampling and labeling run IDs. Only explicitly activated approved runs are claimed. The teacher sees only document ID and document text; a default maximum of 100,000 UTF-8 bytes prevents unapproved sketch truncation. `MAX_DOCUMENT_BYTES` and `MAX_ATTEMPTS` are forwarded by Compose.
 
-Approval of concrete HF sources, quota distribution, evaluation split, near-duplicate detection, student training and repair remain out of scope pending `docs/requirements/open-questions.md`. VPS/Coolify operations are handled by a separate agent. The implemented generic bounded adapter and train-only export are not approval of a production corpus or the full 40k teacher run.
+Evaluation split, near-duplicate detection, student training and repair remain out of scope pending `docs/requirements/open-questions.md`. The bounded 2026-10-02 source and quota decision is in `docs/operations/2026-10-02-bounded-source-plan.md`. The generic adapter and train-only export are not approval to download entire upstream corpora.
 
 ## Explicit run lifecycle
 

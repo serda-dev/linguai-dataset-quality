@@ -33,9 +33,15 @@ def main():
         if state["status"] in ("draft", "collecting"):
             LOG.info("ingest_start run=%s cursor=%s", run_id, state["cursor"])
             started = time.monotonic()
-            ingest_records(store, run_id, stream_hf(state),
-                           max_document_bytes=settings.max_document_bytes,
-                           max_database_bytes=settings.max_database_bytes)
+            stream = stream_hf(state)
+            try:
+                ingest_records(store, run_id, stream,
+                               max_document_bytes=settings.max_document_bytes,
+                               max_database_bytes=settings.max_database_bytes)
+            finally:
+                close = getattr(stream, "close", None)
+                if callable(close):
+                    close()
             LOG.info("ingest_ready run=%s seconds=%.1f", run_id, time.monotonic() - started)
             state = get_run(store, run_id)
         if state["status"] == "ready":

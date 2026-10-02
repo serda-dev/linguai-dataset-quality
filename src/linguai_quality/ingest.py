@@ -15,8 +15,14 @@ def main():
     run = get_run(store, args.run_id)
     if not run["approved"] or run["status"] not in ("draft", "collecting"):
         raise SystemExit("run must be approved and unstarted")
-    ingest_records(store, args.run_id, stream_hf(run), max_document_bytes=settings.max_document_bytes,
-                   max_database_bytes=settings.max_database_bytes)
+    stream = stream_hf(run)
+    try:
+        ingest_records(store, args.run_id, stream, max_document_bytes=settings.max_document_bytes,
+                       max_database_bytes=settings.max_database_bytes)
+    finally:
+        close = getattr(stream, "close", None)
+        if callable(close):
+            close()
 
 
 if __name__ == "__main__":
