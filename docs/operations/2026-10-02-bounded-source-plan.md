@@ -27,3 +27,10 @@ Before activating every run, inspect initial real Teacher outputs for semantic
 quality, timeout and rejection rates; a schema-valid response alone is not a
 human-reviewed rubric calibration. No evaluation split or public export is
 implied by this plan.
+
+`python scripts/apply_source_plan.py` prints the 21 run IDs and quota total
+without writes. With protected admin and full-approval tokens in its process
+environment, `--apply` creates and approves only those pinned runs. It does
+not ingest or activate them. `python scripts/ingest_one_run.py --run-id ID`
+streams one approved run through the worker container, resumes its cursor on
+retry and activates jobs only after the full bounded sample is finalized.
