@@ -32,7 +32,7 @@ def main():
     PRIVATE_ENV.write_text("".join(f"{key}={env[key]}\n" for key in KEEP_ENV))
     PRIVATE_ENV.chmod(0o600)
     command = [
-        "docker", "run", "-d", "--name", NAME, "--restart", "on-failure:3",
+        "docker", "run", "-d", "--name", NAME, "--restart", "on-failure:20",
         "--network", APP_UUID, "--user", "10001:999", "--read-only",
         "--tmpfs", "/tmp:rw,nosuid,size=2g", "--cap-drop", "ALL",
         "--security-opt", "no-new-privileges", "--env-file", str(PRIVATE_ENV),
