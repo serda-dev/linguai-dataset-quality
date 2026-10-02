@@ -5,7 +5,7 @@ import httpx
 
 from linguai_quality.contracts import SYSTEM_PROMPT
 from linguai_quality.teacher import TeacherClient
-from linguai_quality.worker import step
+from linguai_quality.worker import failure_detail, step
 from linguai_quality.settings import Settings
 
 
@@ -18,6 +18,17 @@ class FakeResponse:
 
     def json(self):
         return {"choices": [{"message": {"content": self.content}}]}
+
+
+def test_worker_records_safe_http_failure_code_and_skips_deterministic_retry():
+    request = httpx.Request("POST", "http://teacher.invalid/v1/chat/completions")
+    response = httpx.Response(502, request=request,
+                              json={"error": {"code": "invalid_teacher_label"}})
+    exc = httpx.HTTPStatusError("failed", request=request, response=response)
+    assert failure_detail(exc) == ("HTTP_502_invalid_teacher_label", True)
+    response = httpx.Response(429, request=request, json={"error": {"code": "busy"}})
+    exc = httpx.HTTPStatusError("busy", request=request, response=response)
+    assert failure_detail(exc) == ("HTTP_429_busy", False)
 
 
 def test_teacher_sends_exact_prompt_and_rejects_mismatched_id(monkeypatch):

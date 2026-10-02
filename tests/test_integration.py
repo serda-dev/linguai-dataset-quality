@@ -219,7 +219,7 @@ def test_unavailable_teacher_is_retryable_and_restart_keeps_job(store):
     with restarted.connect() as conn:
         job = conn.execute("SELECT status,attempt_count FROM jobs WHERE run_id=%s", (run,)).fetchone()
         assert job["status"] == "pending" and job["attempt_count"] == 1
-        assert conn.execute("SELECT error_class FROM attempts a JOIN jobs j ON j.id=a.job_id WHERE j.run_id=%s", (run,)).fetchone()["error_class"] == "HTTPStatusError"
+        assert conn.execute("SELECT error_class FROM attempts a JOIN jobs j ON j.id=a.job_id WHERE j.run_id=%s", (run,)).fetchone()["error_class"] == "HTTP_503"
         conn.execute("UPDATE jobs SET available_at=now()-interval '1 second' WHERE run_id=%s", (run,))
     retried = restarted.claim(settings.max_attempts)
     assert retried["run_id"] == run and retried["attempt_count"] == 1
