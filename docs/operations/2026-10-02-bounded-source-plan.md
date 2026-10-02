@@ -34,3 +34,9 @@ environment, `--apply` creates and approves only those pinned runs. It does
 not ingest or activate them. `python scripts/ingest_one_run.py --run-id ID`
 streams one approved run through the worker container, resumes its cursor on
 retry and activates jobs only after the full bounded sample is finalized.
+On the configured VPS, `python scripts/start_ingest_campaign.py` starts one
+restartable Docker container from the deployed worker image. The campaign reads
+the same pinned plan, replays persisted cursors after interruption, processes
+the 21 runs sequentially, and activates each run only after its sample is
+ready. Its Hugging Face and database credentials stay in a mode-600 local
+environment file and are never sent to the replaceable Teacher GPU.
