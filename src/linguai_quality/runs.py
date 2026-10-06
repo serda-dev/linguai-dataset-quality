@@ -168,7 +168,9 @@ def ingest_records(store, run_id: str, records, *, max_document_bytes: int, max_
         raw = record.get(run["text_field"]) if isinstance(record, dict) else None
         invalid = not isinstance(raw, str) or not raw.strip()
         text = raw if not invalid else None
-        if text is not None and len(text.encode("utf-8")) > max_document_bytes:
+        # PostgreSQL text columns cannot store NUL. Keep the original record in
+        # the prefix digest, but exclude it from the candidate pool.
+        if text is not None and ("\x00" in text or len(text.encode("utf-8")) > max_document_bytes):
             text = None
         store.consider_candidate(run, ordinal, text, digest, next_digest, max_database_bytes,
                                  invalid=invalid)

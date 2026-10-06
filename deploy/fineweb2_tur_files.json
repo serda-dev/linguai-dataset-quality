@@ -1,0 +1,158 @@
+{
+  "repo": "HuggingFaceFW/fineweb-2",
+  "revision": "af9c13333eb981300149d5ca60a8e9d659b276b9",
+  "config": "tur_Latn",
+  "split": "train",
+  "files": [
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/000_00000.parquet",
+      "start_ordinal": 0,
+      "rows": 3381000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/000_00001.parquet",
+      "start_ordinal": 3381000,
+      "rows": 3396000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/000_00002.parquet",
+      "start_ordinal": 6777000,
+      "rows": 3403000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/000_00003.parquet",
+      "start_ordinal": 10180000,
+      "rows": 3403000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/000_00004.parquet",
+      "start_ordinal": 13583000,
+      "rows": 3397000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/000_00005.parquet",
+      "start_ordinal": 16980000,
+      "rows": 3406000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/001_00000.parquet",
+      "start_ordinal": 20386000,
+      "rows": 3476000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/001_00001.parquet",
+      "start_ordinal": 23862000,
+      "rows": 3474000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/001_00002.parquet",
+      "start_ordinal": 27336000,
+      "rows": 3469000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/001_00003.parquet",
+      "start_ordinal": 30805000,
+      "rows": 3466000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/001_00004.parquet",
+      "start_ordinal": 34271000,
+      "rows": 3471000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/001_00005.parquet",
+      "start_ordinal": 37742000,
+      "rows": 3478000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/002_00000.parquet",
+      "start_ordinal": 41220000,
+      "rows": 3456000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/002_00001.parquet",
+      "start_ordinal": 44676000,
+      "rows": 3449000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/002_00002.parquet",
+      "start_ordinal": 48125000,
+      "rows": 3451000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/002_00003.parquet",
+      "start_ordinal": 51576000,
+      "rows": 3449000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/002_00004.parquet",
+      "start_ordinal": 55025000,
+      "rows": 3459000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/002_00005.parquet",
+      "start_ordinal": 58484000,
+      "rows": 3452000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/003_00000.parquet",
+      "start_ordinal": 61936000,
+      "rows": 3405000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/003_00001.parquet",
+      "start_ordinal": 65341000,
+      "rows": 3398000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/003_00002.parquet",
+      "start_ordinal": 68739000,
+      "rows": 3397000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/003_00003.parquet",
+      "start_ordinal": 72136000,
+      "rows": 3401000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/003_00004.parquet",
+      "start_ordinal": 75537000,
+      "rows": 3395000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/003_00005.parquet",
+      "start_ordinal": 78932000,
+      "rows": 3399000
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/004_00000.parquet",
+      "start_ordinal": 82331000,
+      "rows": 2324943
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/004_00001.parquet",
+      "start_ordinal": 84655943,
+      "rows": 2250398
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/004_00002.parquet",
+      "start_ordinal": 86906341,
+      "rows": 2185339
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/004_00003.parquet",
+      "start_ordinal": 89091680,
+      "rows": 2116241
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/004_00004.parquet",
+      "start_ordinal": 91207921,
+      "rows": 2003906
+    },
+    {
+      "url": "hf://datasets/HuggingFaceFW/fineweb-2@af9c13333eb981300149d5ca60a8e9d659b276b9/data/tur_Latn/train/004_00005.parquet",
+      "start_ordinal": 93211827,
+      "rows": 1917302
+    }
+  ]
+}

@@ -185,6 +185,30 @@ def test_oversize_record_is_ineligible_without_malformed_budget(store):
         assert conn.execute("SELECT count(*) AS n FROM jobs WHERE run_id=%s", (run,)).fetchone()["n"] == 2
 
 
+def test_nul_record_is_ineligible_and_resume_keeps_prefix(store):
+    run = str(uuid.uuid4())
+    create_run(store, SourcePlan(run, "fixture/hf", "a"*40, "cfg", "train", "text",
+                                 17, 3, 2, True))
+    approve_run(store, run, supplied_full_token="", configured_full_token="",
+                unapproved_ceiling=5000)
+    records = [{"text": "ilk metin"}, {"text": "bozuk\x00metin"}, {"text": "son metin"}]
+
+    def interrupted():
+        yield from records[:2]
+        raise OSError("source interrupted")
+
+    with pytest.raises(OSError):
+        ingest_records(store, run, interrupted(), max_document_bytes=100,
+                       max_database_bytes=8_000_000_000)
+    assert get_run(store, run)["cursor"] == 2
+    ingest_records(store, run, records, max_document_bytes=100,
+                   max_database_bytes=8_000_000_000)
+    with store.connect() as conn:
+        rows = conn.execute("""SELECT d.original_text FROM jobs j JOIN documents d ON d.id=j.doc_id
+            WHERE j.run_id=%s ORDER BY d.ordinal""", (run,)).fetchall()
+        assert [row["original_text"] for row in rows] == ["ilk metin", "son metin"]
+
+
 def test_failed_teacher_records_attempt_and_export_train_only(store, tmp_path):
     run = str(uuid.uuid4())
     manual_run(store, run, 2)

@@ -36,6 +36,7 @@ def main():
         "--network", APP_UUID, "--user", "10001:999", "--read-only",
         "--tmpfs", "/tmp:rw,nosuid,size=2g", "--cap-drop", "ALL",
         "--security-opt", "no-new-privileges", "--env-file", str(PRIVATE_ENV),
+        "--env", "PYTHONPATH=/runner/src:/runner/scripts",
         "--mount", f"type=volume,src={mounts[0]['Name']},dst=/artifacts",
         "--mount", f"type=bind,src={REPO},dst=/runner,readonly",
         worker["Config"]["Image"], "python", "/runner/scripts/ingest_campaign.py",
